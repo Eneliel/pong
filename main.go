@@ -3,18 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/gdamore/tcell"
 )
 
-// Отрисовать обьекты на экране
-// Отрисовать обьект для игрока
-// мувмент
-// Границы
-// Отрисовать шар
-// мувмент шара
-// Столкновение
-// Game over
+//Input
 
 const PaddleHeight = 4
 const PaddleSymbol = 0x2588
@@ -56,17 +50,36 @@ func DrawState() {
 func main() {
 	Initscreen()
 	InitGameState()
-	DrawState()
-
 	for {
-		switch ev := screen.PollEvent().(type) {
-		case *tcell.EventKey:
-			if ev.Key() == tcell.KeyEscape {
-				screen.Fini()
-				os.Exit(0)
+		DrawState()
+		time.Sleep(50 * time.Millisecond)
+		// 	switch ev := screen.PollEvent().(type) {
+		// 	case *tcell.EventKey:
+		// 		if ev.Key() == tcell.KeyEscape || ev.Rune() == 'q' {
+		// 			screen.Fini()
+		// 			os.Exit(0)
+		// 		} else if ev.Rune() == 'w' {
+		// 			Player1.row--
+		// 		} else if ev.Rune() == 's' {
+		// 			Player1.row++
+		// 		} else if ev.Key() == tcell.KeyUp {
+		// 			Player2.row--
+		// 		} else if ev.Key() == tcell.KeyDown {
+		// 			Player2.row++
+		// 		}
+		// 	}
+	}
+}
+
+func InitUserInput() {
+	go func() {
+		for {
+			switch screen.PollEvent().(type) {
+			case *tcell.EventKey:
 			}
 		}
-	}
+	}()
+
 }
 
 func Initscreen() {
