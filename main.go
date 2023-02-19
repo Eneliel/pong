@@ -8,14 +8,17 @@ import (
 	"github.com/gdamore/tcell"
 )
 
-//Ball
+//Ball movement
 
 const PaddleHeight = 4
 const PaddleSymbol = 0x2588
 const BallSymbol = 0x25CF
+const BallVelRow = 1
+const BallVelCol = 2
 
 type GameObject struct {
 	row, col, width, height int
+	VelRow, VelCol          int
 	symbol                  rune
 }
 
@@ -60,12 +63,21 @@ func main() {
 	inputchan := InitUserInput()
 
 	for {
+		HandleUserInput(readInput(inputchan))
+		UpdateState()
 		DrawState()
 		time.Sleep(50 * time.Millisecond)
-		key := readInput(inputchan)
-		HandleUserInput(key)
+
 	}
 }
+
+func UpdateState() {
+	for i := range gameObject {
+		gameObject[i].row += gameObject[i].VelRow
+		gameObject[i].col += gameObject[i].VelCol
+	}
+}
+
 func HandleUserInput(key string) {
 	_, screenHeight := screen.Size()
 	if key == "Rune[q]" {
@@ -122,6 +134,8 @@ func InitGameState() {
 		width:  1,
 		height: PaddleHeight,
 		symbol: PaddleSymbol,
+		VelRow: 0,
+		VelCol: 0,
 	}
 	Player2Paddle = &GameObject{
 		row:    paddleStart,
@@ -129,6 +143,8 @@ func InitGameState() {
 		width:  1,
 		height: PaddleHeight,
 		symbol: PaddleSymbol,
+		VelRow: 0,
+		VelCol: 0,
 	}
 	ball = &GameObject{
 		row:    height / 2,
@@ -136,6 +152,8 @@ func InitGameState() {
 		width:  1,
 		height: 1,
 		symbol: BallSymbol,
+		VelRow: BallVelRow,
+		VelCol: BallVelCol,
 	}
 	gameObject = []*GameObject{
 		Player1Paddle, Player2Paddle, ball,
