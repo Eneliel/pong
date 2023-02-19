@@ -8,7 +8,7 @@ import (
 	"github.com/gdamore/tcell"
 )
 
-//Input
+//Boundaries
 
 const PaddleHeight = 4
 const PaddleSymbol = 0x2588
@@ -57,18 +57,22 @@ func main() {
 		DrawState()
 		time.Sleep(50 * time.Millisecond)
 		key := readInput(inputchan)
-		if key == "Rune[q]" {
-			screen.Fini()
-			os.Exit(0)
-		} else if key == "Rune[w]" {
-			Player1.row--
-		} else if key == "Rune[s]" {
-			Player1.row++
-		} else if key == "Up" {
-			Player2.row--
-		} else if key == "Down" {
-			Player2.row++
-		}
+		HandleUserInput(key)
+	}
+}
+func HandleUserInput(key string) {
+	_, screenHeight := screen.Size()
+	if key == "Rune[q]" {
+		screen.Fini()
+		os.Exit(0)
+	} else if key == "Rune[w]" && Player1.row > 0 {
+		Player1.row--
+	} else if key == "Rune[s]" && Player1.row+Player1.height < screenHeight {
+		Player1.row++
+	} else if key == "Up" && Player2.row > 0 {
+		Player2.row--
+	} else if key == "Down" && Player2.row+Player2.height < screenHeight {
+		Player2.row++
 	}
 }
 
