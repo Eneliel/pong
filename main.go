@@ -8,19 +8,24 @@ import (
 	"github.com/gdamore/tcell"
 )
 
-//Boundaries
+//Ball
 
 const PaddleHeight = 4
 const PaddleSymbol = 0x2588
+const BallSymbol = 0x25CF
 
-type Paddle struct {
+type GameObject struct {
 	row, col, width, height int
+	symbol                  rune
 }
 
 var screen tcell.Screen
-var Player1 *Paddle
-var Player2 *Paddle
+var Player1Paddle *GameObject
+var Player2Paddle *GameObject
+var ball *GameObject
 var debugLog string
+
+var gameObject []*GameObject
 
 func PrintString(row, col int, str string) {
 	for _, c := range str {
@@ -43,8 +48,9 @@ func Print(row, col, width, height int, ch rune) {
 func DrawState() {
 	screen.Clear()
 	PrintString(0, 0, debugLog)
-	Print(Player1.row, Player1.col, Player1.width, Player1.height, PaddleSymbol)
-	Print(Player2.row, Player2.col, Player2.width, Player2.height, PaddleSymbol)
+	for _, obj := range gameObject {
+		Print(obj.row, obj.col, obj.width, obj.height, obj.symbol)
+	}
 	screen.Show()
 }
 
@@ -65,14 +71,14 @@ func HandleUserInput(key string) {
 	if key == "Rune[q]" {
 		screen.Fini()
 		os.Exit(0)
-	} else if key == "Rune[w]" && Player1.row > 0 {
-		Player1.row--
-	} else if key == "Rune[s]" && Player1.row+Player1.height < screenHeight {
-		Player1.row++
-	} else if key == "Up" && Player2.row > 0 {
-		Player2.row--
-	} else if key == "Down" && Player2.row+Player2.height < screenHeight {
-		Player2.row++
+	} else if key == "Rune[w]" && Player1Paddle.row > 0 {
+		Player1Paddle.row--
+	} else if key == "Rune[s]" && Player1Paddle.row+Player1Paddle.height < screenHeight {
+		Player1Paddle.row++
+	} else if key == "Up" && Player2Paddle.row > 0 {
+		Player2Paddle.row--
+	} else if key == "Down" && Player2Paddle.row+Player2Paddle.height < screenHeight {
+		Player2Paddle.row++
 	}
 }
 
@@ -110,17 +116,29 @@ func Initscreen() {
 func InitGameState() {
 	width, height := screen.Size()
 	paddleStart := height/2 - PaddleHeight/2
-	Player1 = &Paddle{
+	Player1Paddle = &GameObject{
 		row:    paddleStart,
 		col:    0,
 		width:  1,
 		height: PaddleHeight,
+		symbol: PaddleSymbol,
 	}
-	Player2 = &Paddle{
+	Player2Paddle = &GameObject{
 		row:    paddleStart,
 		col:    width - 1,
 		width:  1,
 		height: PaddleHeight,
+		symbol: PaddleSymbol,
+	}
+	ball = &GameObject{
+		row:    height / 2,
+		col:    width / 2,
+		width:  1,
+		height: 1,
+		symbol: BallSymbol,
+	}
+	gameObject = []*GameObject{
+		Player1Paddle, Player2Paddle, ball,
 	}
 }
 
