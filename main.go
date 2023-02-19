@@ -8,7 +8,7 @@ import (
 	"github.com/gdamore/tcell"
 )
 
-//Collides
+//Collides with Paddle
 
 const PaddleHeight = 4
 const PaddleSymbol = 0x2588
@@ -84,6 +84,21 @@ func UpdateState() {
 	if CollidesWithWall(ball) {
 		ball.VelRow = -ball.VelRow
 	}
+	if CollidesWithPaddle(ball, Player1Paddle) || CollidesWithPaddle(ball, Player2Paddle) {
+		ball.VelCol = -ball.VelCol
+	}
+}
+
+func CollidesWithPaddle(obj *GameObject, paddle *GameObject) bool {
+	var collidesonCol bool
+	if ball.col < paddle.col {
+		collidesonCol = ball.col+ball.VelCol >= paddle.col
+	} else {
+		collidesonCol = ball.col+ball.VelCol <= paddle.col
+	}
+	return collidesonCol &&
+		ball.row >= paddle.row &&
+		ball.row < paddle.row+paddle.height
 }
 
 func HandleUserInput(key string) {
