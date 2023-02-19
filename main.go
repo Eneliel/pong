@@ -20,6 +20,7 @@ type Paddle struct {
 var screen tcell.Screen
 var Player1 *Paddle
 var Player2 *Paddle
+var debugLog string
 
 func PrintString(row, col int, str string) {
 	for _, c := range str {
@@ -41,45 +42,47 @@ func Print(row, col, width, height int, ch rune) {
 
 func DrawState() {
 	screen.Clear()
+	PrintString(0, 0, debugLog)
 	Print(Player1.row, Player1.col, Player1.width, Player1.height, PaddleSymbol)
 	Print(Player2.row, Player2.col, Player2.width, Player2.height, PaddleSymbol)
 	screen.Show()
 }
 
-// This program just prints "Hello, World!".  Press ESC to exit.
 func main() {
 	Initscreen()
 	InitGameState()
+	inputchan := InitUserInput()
+
 	for {
 		DrawState()
 		time.Sleep(50 * time.Millisecond)
-		// 	switch ev := screen.PollEvent().(type) {
-		// 	case *tcell.EventKey:
-		// 		if ev.Key() == tcell.KeyEscape || ev.Rune() == 'q' {
-		// 			screen.Fini()
-		// 			os.Exit(0)
-		// 		} else if ev.Rune() == 'w' {
-		// 			Player1.row--
-		// 		} else if ev.Rune() == 's' {
-		// 			Player1.row++
-		// 		} else if ev.Key() == tcell.KeyUp {
-		// 			Player2.row--
-		// 		} else if ev.Key() == tcell.KeyDown {
-		// 			Player2.row++
-		// 		}
-		// 	}
+		key := readInput(inputchan)
+		if key == "Rune[q]" {
+			screen.Fini()
+			os.Exit(0)
+		} else if key == "Rune[w]" {
+			Player1.row--
+		} else if key == "Rune[s]" {
+			Player1.row++
+		} else if key == "Up" {
+			Player2.row--
+		} else if key == "Down" {
+			Player2.row++
+		}
 	}
 }
 
-func InitUserInput() {
+func InitUserInput() chan string {
+	inputchan := make(chan string)
 	go func() {
 		for {
-			switch screen.PollEvent().(type) {
+			switch ev := screen.PollEvent().(type) {
 			case *tcell.EventKey:
+				inputchan <- ev.Name()
 			}
 		}
 	}()
-
+	return inputchan
 }
 
 func Initscreen() {
@@ -115,4 +118,14 @@ func InitGameState() {
 		width:  1,
 		height: PaddleHeight,
 	}
+}
+
+func readInput(inputchan chan string) string {
+	var key string
+	select {
+	case key = <-inputchan:
+	default:
+		key = ""
+	}
+	return key
 }
