@@ -8,7 +8,7 @@ import (
 	"github.com/gdamore/tcell"
 )
 
-//Ball movement
+//Collides
 
 const PaddleHeight = 4
 const PaddleSymbol = 0x2588
@@ -57,6 +57,11 @@ func DrawState() {
 	screen.Show()
 }
 
+func CollidesWithWall(obj *GameObject) bool {
+	_, screenHeight := screen.Size()
+	return obj.row+obj.VelRow < 0 || obj.row+obj.VelRow > screenHeight
+}
+
 func main() {
 	Initscreen()
 	InitGameState()
@@ -75,6 +80,9 @@ func UpdateState() {
 	for i := range gameObject {
 		gameObject[i].row += gameObject[i].VelRow
 		gameObject[i].col += gameObject[i].VelCol
+	}
+	if CollidesWithWall(ball) {
+		ball.VelRow = -ball.VelRow
 	}
 }
 
