@@ -61,19 +61,30 @@ func CollidesWithWall(obj *GameObject) bool {
 	_, screenHeight := screen.Size()
 	return obj.row+obj.VelRow < 0 || obj.row+obj.VelRow > screenHeight
 }
+func PrintCenter(row, col int, str string) {
+	col = col - len(str)/2
+	PrintString(row, col, str)
+}
 
 func main() {
 	Initscreen()
 	InitGameState()
 	inputchan := InitUserInput()
 
-	for {
+	for !isGameOver() {
 		HandleUserInput(readInput(inputchan))
 		UpdateState()
 		DrawState()
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(75 * time.Millisecond)
 
 	}
+	winner := Winner()
+	sWidth, sHeight := screen.Size()
+	PrintCenter(sHeight/2-1, sWidth/2, "Game Over!")
+	PrintCenter(sHeight/2, sWidth/2, fmt.Sprintf("%s win!", winner))
+	screen.Show()
+	time.Sleep(2 * time.Second)
+	screen.Fini()
 }
 
 func UpdateState() {
@@ -191,4 +202,19 @@ func readInput(inputchan chan string) string {
 		key = ""
 	}
 	return key
+}
+
+func isGameOver() bool {
+	return Winner() != ""
+}
+
+func Winner() string {
+	screenWidth, _ := screen.Size()
+	if ball.col < 0 {
+		return "Player 2"
+	} else if ball.col >= screenWidth {
+		return "Player 1"
+	} else {
+		return ""
+	}
 }
